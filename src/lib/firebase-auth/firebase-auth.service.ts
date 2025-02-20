@@ -1,21 +1,19 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
-import actionCodeSettings from 'src/config/firebase/auth/actionCodeSettings';
+import actionCodeSettings from '../../config/firebase/auth/actionCodeSettings';
+import { FirebaseService } from '../firebase/firebase.service';
 
 @Injectable()
 export class FirebaseAuthService {
   private auth: admin.auth.Auth;
 
-  constructor(
-    @Inject('FIREBASE_ADMIN') private readonly firebaseAdmin: admin.app.App,
-  ) {
-    this.auth = firebaseAdmin.auth();
+  constructor(private readonly firebaseService: FirebaseService) {
+    this.auth = firebaseService.getAdmin().auth();
   }
 
   async sendSignInLinkToEmail(email: string) {
     const settings = actionCodeSettings();
-    await this.auth.generateSignInWithEmailLink(email, settings);
-    return;
+    return await this.auth.generateSignInWithEmailLink(email, settings);
   }
 
   async verifyToken(token: string) {

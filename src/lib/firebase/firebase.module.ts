@@ -1,23 +1,11 @@
 import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import * as admin from 'firebase-admin';
-import { IFirebaseConfig } from 'src/config/firebase/config';
+import { FirebaseService } from './firebase.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  providers: [
-    {
-      provide: 'FIREBASE-ADMIN',
-      useFactory: (configService: ConfigService) => {
-        return admin.initializeApp({
-          credential: admin.credential.cert(
-            configService.get<IFirebaseConfig>(
-              'firebase',
-            ) as admin.ServiceAccount,
-          ),
-        });
-      },
-    },
-  ],
-  exports: ['FIREBASE_ADMIN'],
+  imports: [ConfigModule],
+  providers: [FirebaseService],
+  exports: [FirebaseService],
+  controllers: [],
 })
-export class FirebaseModule { }
+export class FirebaseModule {}

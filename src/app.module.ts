@@ -1,8 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
-import { CommonModule } from './common/common.module';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
@@ -14,8 +12,6 @@ import firebaseConfig from './config/firebase/config';
 
 @Module({
   imports: [
-    AuthModule,
-    CommonModule,
     ConfigModule.forRoot({ cache: true, load: [firebaseConfig] }),
     PrismaModule,
     UserModule,
@@ -23,7 +19,7 @@ import firebaseConfig from './config/firebase/config';
     FirebaseModule,
   ],
   controllers: [AppController],
-  providers: [AppService, FirebaseAuthService],
+  providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
