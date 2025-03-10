@@ -8,6 +8,8 @@ import { LoggerMiddleware } from './middleware/logger.middleware';
 import { FirebaseAuthService } from './lib/firebase-auth/firebase-auth.service';
 import { FirebaseAuthModule } from './lib/firebase-auth/firebase-auth.module';
 import { FirebaseModule } from './lib/firebase/firebase.module';
+import { SessionService } from './session/session.service';
+import { SessionModule } from './session/session.module';
 import firebaseConfig from './config/firebase/config';
 
 @Module({
@@ -17,12 +19,15 @@ import firebaseConfig from './config/firebase/config';
     UserModule,
     FirebaseAuthModule,
     FirebaseModule,
+    SessionModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, SessionService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('user');
+    consumer
+      .apply(LoggerMiddleware).forRoutes('user')
+      .apply();
   }
 }

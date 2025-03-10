@@ -2,7 +2,7 @@
 import { Type } from 'class-transformer';
 import { IsDate, IsEmail, IsString } from 'class-validator';
 
-export class CreateUserDto {
+export class SignUpUserDto {
   @IsString()
   @IsEmail()
   email: string;
@@ -15,8 +15,11 @@ export class CreateUserDto {
 
   @IsDate()
   @Type(() => Date)
-  dob?: Date;
+  dob: Date;
 
   @IsString()
-  phoneNo?: string;
+  phoneNo: string;
+
+  @IsString()
+  token?: string;
 }

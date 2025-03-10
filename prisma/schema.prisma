@@ -13,11 +13,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User{
-  id    Int     @default(autoincrement()) @id
-  email String  @unique
+model User {
+  id        Int      @default(autoincrement()) @id
+  email     String   @unique
   firstName String 
-  lastName String
-  dob DateTime?
-  phoneNo String?
+  lastName  String
+  dob       DateTime
+  phoneNo   String
 }
+
+enum SessionStatus {
+  ACTIVE
+  INACTIVE
+}
+model Session {
+  id        Int      @default(autoincrement()) @id
+  userId    Int
+  status    SessionStatus
+  createdAt DateTime @default(now())
+  expiresAt DateTime 
+}
+
