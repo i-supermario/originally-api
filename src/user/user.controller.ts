@@ -19,24 +19,24 @@ export class UserController {
     @Res() response: Response,
     @Body() userData: SignUpUserDto,
   ) {
-    if (!userData.token) {
-      response.send({ message: 'Token not found' });
-    }
+    // const decoded = await this.firebaseAuthService.verifyToken(userData.token);
+    // console.log(decoded);
+    // if (!decoded.isVerified) {
+    //   response.send({ message: 'Token could not be verified' });
+    // }
 
-    const decoded = await this.firebaseAuthService.verifyToken(
-      userData.token || '',
-    );
-    if (!decoded.isVerified) {
-      response.send({ message: 'Token could not be verified' });
-    }
+    const { password, token, ...user } = userData;
 
-    const res = await this.userService.createUser(userData);
+    const res = await this.userService.createUser(user);
     if (!res.id) {
       return response.status(404).send({
         message: 'User could not be created',
       });
     }
 
+    const session = await this.sessionService.createSession(res.id);
+
+    response.cookie('sessionId', session.id, { expires: session.expiresAt });
     response.status(200).send({
       message: 'User created successfully',
     });
@@ -79,7 +79,6 @@ export class UserController {
       if (newSession) {
         response.send({
           message: 'User logged in successfully',
-          sessionId: newSession.id,
         });
       } else {
         response.send({ message: 'Session could not be created' });

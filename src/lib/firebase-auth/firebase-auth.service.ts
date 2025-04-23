@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
-import actionCodeSettings from '../../config/firebase/auth/actionCodeSettings';
 import { FirebaseService } from '../firebase/firebase.service';
 
 @Injectable()

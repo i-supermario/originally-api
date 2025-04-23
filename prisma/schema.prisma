@@ -14,12 +14,13 @@ datasource db {
 }
 
 model User {
-  id        Int      @default(autoincrement()) @id
-  email     String   @unique
+  id        String      @default(uuid()) @id
+  email     String      @unique
   firstName String 
   lastName  String
   dob       DateTime
   phoneNo   String
+  sessions  Session[]
 }
 
 enum SessionStatus {
@@ -27,10 +28,12 @@ enum SessionStatus {
   INACTIVE
 }
 model Session {
-  id        Int      @default(autoincrement()) @id
-  userId    Int
+  id        String         @id @default(uuid())      // ✅ FIXED
+  userId    String
+  user      User           @relation(fields: [userId], references: [id]) // ✅ Proper relation
   status    SessionStatus
-  createdAt DateTime @default(now())
-  expiresAt DateTime 
+  createdAt DateTime       @default(now())
+  expiresAt DateTime
 }
+
 

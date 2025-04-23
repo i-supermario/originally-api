@@ -6,7 +6,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { SessionModule } from 'src/session/session.module';
 
 @Module({
-  imports: [FirebaseAuthModule, PrismaModule, SessionModule],
+  imports: [PrismaModule, SessionModule, FirebaseAuthModule],
   providers: [UserService],
   controllers: [UserController],
 })
