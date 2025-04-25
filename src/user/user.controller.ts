@@ -29,7 +29,7 @@ export class UserController {
 
     const res = await this.userService.createUser(user);
     if (!res.id) {
-      return response.status(404).send({
+      return response.status(401).send({
         message: 'User could not be created',
       });
     }
@@ -37,10 +37,9 @@ export class UserController {
     const session = await this.sessionService.createSession(res.id);
 
     response.cookie('sessionId', session.id, { expires: session.expiresAt });
-    response.status(200).send({
+    return response.status(200).send({
       message: 'User created successfully',
     });
-    return;
   }
 
   @Post('/login')
@@ -50,7 +49,7 @@ export class UserController {
     @Body() body: LoginUserDto,
   ) {
     if (!body.token) {
-      response.send({ message: 'Token not found' });
+      return response.status(401).send({ message: 'Token not found' });
     }
 
     // Check if user exists
@@ -58,6 +57,15 @@ export class UserController {
 
     // Create session
     if (user) {
+      // Verify token
+      const decoded = await this.firebaseAuthService.verifyToken(body.token);
+      console.log(decoded);
+      if (!decoded.isVerified) {
+        return response
+          .status(401)
+          .send({ message: 'Token could not be verified' });
+      }
+
       // Check if user already logged
       const oldSession = await this.sessionService.findActiveSessionByUserId(
         user.id,
@@ -66,25 +74,20 @@ export class UserController {
       if (oldSession) {
         await this.sessionService.extendSessionTimeBy(oldSession.id);
       }
-      // Verify token
-      const decoded = await this.firebaseAuthService.verifyToken(
-        body.token || '',
-      );
-      if (!decoded.isVerified) {
-        response.send({ message: 'Token could not be verified' });
-      }
 
       const newSession = await this.sessionService.createSession(user.id);
 
       if (newSession) {
-        response.send({
+        return response.status(200).send({
           message: 'User logged in successfully',
         });
       } else {
-        response.send({ message: 'Session could not be created' });
+        return response
+          .status(401)
+          .send({ message: 'Session could not be created' });
       }
     } else {
-      response.send({ message: 'User not found' });
+      return response.status(401).send({ message: 'User not found' });
     }
     return;
   }

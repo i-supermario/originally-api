@@ -17,6 +17,16 @@ export class SessionService {
     });
   }
 
+  async findActiveSessionBySessionId(
+    sessionId: number,
+  ): Promise<Session | null> {
+    return this.prismaService.session.findFirst({
+      where: {
+        id: sessionId,
+      },
+    });
+  }
+
   async findActiveSessionByUserId(userId: number): Promise<Session | null> {
     return this.prismaService.session.findFirst({
       where: {
