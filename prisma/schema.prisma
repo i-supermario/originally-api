@@ -28,9 +28,9 @@ enum SessionStatus {
   INACTIVE
 }
 model Session {
-  id        String         @id @default(uuid())      // ✅ FIXED
+  id        String         @id @default(uuid())     
   userId    String
-  user      User           @relation(fields: [userId], references: [id]) // ✅ Proper relation
+  user      User           @relation(fields: [userId], references: [id])
   status    SessionStatus
   createdAt DateTime       @default(now())
   expiresAt DateTime

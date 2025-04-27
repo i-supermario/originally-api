@@ -6,7 +6,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class SessionService {
   constructor(private prismaService: PrismaService) {}
 
-  async createSession(userId: number): Promise<Session> {
+  async createSession(userId: string): Promise<Session> {
     return this.prismaService.session.create({
       data: {
         userId: userId,
@@ -18,7 +18,7 @@ export class SessionService {
   }
 
   async findActiveSessionBySessionId(
-    sessionId: number,
+    sessionId: string,
   ): Promise<Session | null> {
     return this.prismaService.session.findFirst({
       where: {
@@ -27,7 +27,7 @@ export class SessionService {
     });
   }
 
-  async findActiveSessionByUserId(userId: number): Promise<Session | null> {
+  async findActiveSessionByUserId(userId: string): Promise<Session | null> {
     return this.prismaService.session.findFirst({
       where: {
         userId: userId,
@@ -37,7 +37,7 @@ export class SessionService {
   }
 
   async extendSessionTimeBy(
-    sessionId: number,
+    sessionId: string,
     duration: number = 24 * 60 * 60 * 1000,
   ): Promise<Session> {
     return this.prismaService.session.update({
@@ -51,7 +51,7 @@ export class SessionService {
     });
   }
 
-  async closeActiveSession(sessionId: number) {
+  async closeActiveSession(sessionId: string) {
     return this.prismaService.session.update({
       where: {
         id: sessionId,

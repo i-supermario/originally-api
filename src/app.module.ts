@@ -9,7 +9,6 @@ import { FirebaseAuthModule } from './lib/firebase-auth/firebase-auth.module';
 import { FirebaseModule } from './lib/firebase/firebase.module';
 import { SessionService } from './session/session.service';
 import { SessionModule } from './session/session.module';
-import { ServiceController } from './service/service.controller';
 import firebaseConfig from './config/firebase/config';
 
 @Module({
@@ -21,7 +20,7 @@ import firebaseConfig from './config/firebase/config';
     FirebaseModule,
     SessionModule,
   ],
-  controllers: [AppController, ServiceController],
+  controllers: [AppController],
   providers: [AppService, SessionService],
 })
 export class AppModule implements NestModule {

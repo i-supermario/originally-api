@@ -12,15 +12,30 @@ export class SessionController {
 
   @Get('/user-info')
   async getUserSessionInfo(@Req() request: Request, @Res() response: Response) {
-    const sessionId: number = request.cookies.sessionId;
+    const sessionId: string = request.cookies.sessionId;
+
+    if (!sessionId) {
+      return response.status(401).send({
+        message: 'Session id not found',
+      });
+    }
 
     const sessionInfo =
       await this.sessionService.findActiveSessionBySessionId(sessionId);
-    const userInfo = await this.userService.findUserById(sessionInfo?.userId);
 
-    return response.status(200).send({
-      email: userInfo?.email,
-      sessionId: sessionId,
-    });
+    if (!sessionInfo) {
+      return response.status(401).send({
+        message: 'session info not found',
+      });
+    }
+
+    const userInfo = await this.userService.findUserById(sessionInfo.userId);
+
+    if (userInfo) {
+      return response.status(200).send({
+        email: userInfo?.email,
+        sessionId: sessionId,
+      });
+    }
   }
 }

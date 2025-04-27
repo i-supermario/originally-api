@@ -12,7 +12,7 @@ export class UserService {
     });
   }
 
-  async updateUser(id: number, data: Prisma.UserUpdateInput): Promise<User> {
+  async updateUser(id: string, data: Prisma.UserUpdateInput): Promise<User> {
     return this.prisma.user.update({
       data: data,
       where: {
@@ -21,7 +21,7 @@ export class UserService {
     });
   }
 
-  async deleteUser(id: number): Promise<User> {
+  async deleteUser(id: string): Promise<User> {
     return this.prisma.user.delete({
       where: {
         id: id,
@@ -29,7 +29,7 @@ export class UserService {
     });
   }
 
-  async findUserById(id: number): Promise<User | null> {
+  async findUserById(id: string): Promise<User | null> {
     return this.prisma.user.findFirst({
       where: {
         id: id,
