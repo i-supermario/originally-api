@@ -45,32 +45,30 @@ export class UserController {
     });
     return response.status(200).send({
       message: 'User created successfully',
+      sessionId: session.id,
+      email: user.email,
     });
   }
 
   @Post('/login')
   async loginUser(
     @Req() request: Request,
-    @Res() response: Response,
+    @Res({ passthrough: true }) response: Response,
     @Body() body: LoginUserDto,
   ) {
-    if (!body.token) {
-      return response.status(401).send({ message: 'Token not found' });
-    }
-
     // Check if user exists
     const user = await this.userService.findUserByEmail(body.email);
 
     // Create session
     if (user) {
       // Verify token
-      const decoded = await this.firebaseAuthService.verifyToken(body.token);
-      console.log(decoded);
-      if (!decoded.isVerified) {
-        return response
-          .status(401)
-          .send({ message: 'Token could not be verified' });
-      }
+      // const decoded = await this.firebaseAuthService.verifyToken(body.token);
+      // console.log(decoded);
+      // if (!decoded.isVerified) {
+      //   return response
+      //     .status(401)
+      //     .send({ message: 'Token could not be verified' });
+      // }
 
       // Check if user already logged
       const oldSession = await this.sessionService.findActiveSessionByUserId(
@@ -78,22 +76,32 @@ export class UserController {
       );
 
       if (oldSession) {
+        response.cookie('sessionId', oldSession.id, {
+          expires: oldSession.expiresAt,
+          httpOnly: true,
+          secure: false,
+          sameSite: 'lax',
+        });
         return response.status(200).send({
           message: 'User logged in successfully',
+          sessionId: oldSession.id,
+          email: user.email,
         });
       }
 
       const newSession = await this.sessionService.createSession(user.id);
-      response.cookie('sessionId', newSession.id, {
-        expires: newSession.expiresAt,
-        httpOnly: true,
-        secure: false,
-        sameSite: 'lax',
-      });
 
       if (newSession) {
+        response.cookie('sessionId', newSession.id, {
+          expires: newSession.expiresAt,
+          httpOnly: true,
+          secure: false,
+          sameSite: 'lax',
+        });
         return response.status(200).send({
           message: 'User logged in successfully',
+          sessionId: newSession.id,
+          email: user.email,
         });
       } else {
         return response
@@ -109,7 +117,7 @@ export class UserController {
   @Post('/logout')
   async logoutUser(
     @Req() request: Request,
-    @Res() response: Response,
+    @Res({ passthrough: true }) response: Response,
     @Body() body: LogoutUserDto,
   ) {
     // Check if user exists
@@ -128,7 +136,12 @@ export class UserController {
         message: 'session not found',
       });
     }
-
+    response.cookie('sessionId', '', {
+      expires: new Date(),
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+    });
     await this.sessionService.closeActiveSession(session.id);
     return response.status(200).send({
       message: 'User logged out successfully',

@@ -9,5 +9,5 @@ export class LoginUserDto {
   password?: string;
 
   @IsString()
-  token: string;
+  token?: string;
 }
