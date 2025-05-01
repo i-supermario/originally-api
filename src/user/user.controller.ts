@@ -5,6 +5,7 @@ import { Request, Response } from 'express';
 import { FirebaseAuthService } from 'src/lib/firebase-auth/firebase-auth.service';
 import { LoginUserDto } from './dto/LoginUser.dto';
 import { SessionService } from 'src/session/session.service';
+import { LogoutUserDto } from './dto/LogoutUser.dto';
 @Controller('/user')
 export class UserController {
   constructor(
@@ -103,5 +104,34 @@ export class UserController {
       return response.status(401).send({ message: 'User not found' });
     }
     return;
+  }
+
+  @Post('/logout')
+  async logoutUser(
+    @Req() request: Request,
+    @Res() response: Response,
+    @Body() body: LogoutUserDto,
+  ) {
+    // Check if user exists
+    const user = await this.userService.findUserByEmail(body.email);
+    if (!user) {
+      return response.status(400).send({
+        message: 'User not found',
+      });
+    }
+    const session = await this.sessionService.findActiveSessionByUserId(
+      user?.id,
+    );
+
+    if (!session) {
+      return response.status(400).send({
+        message: 'session not found',
+      });
+    }
+
+    await this.sessionService.closeActiveSession(session.id);
+    return response.status(200).send({
+      message: 'User logged out successfully',
+    });
   }
 }
