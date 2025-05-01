@@ -7,6 +7,7 @@ import { SessionModule } from 'src/session/session.module';
 
 @Module({
   imports: [PrismaModule, SessionModule, FirebaseAuthModule],
+  exports: [UserService],
   providers: [UserService],
   controllers: [UserController],
 })

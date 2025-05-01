@@ -16,7 +16,7 @@ export class UserController {
   @Post('/sign-up')
   async signUpUser(
     @Req() request: Request,
-    @Res() response: Response,
+    @Res({ passthrough: true }) response: Response,
     @Body() userData: SignUpUserDto,
   ) {
     // const decoded = await this.firebaseAuthService.verifyToken(userData.token);
@@ -36,7 +36,12 @@ export class UserController {
 
     const session = await this.sessionService.createSession(res.id);
 
-    response.cookie('sessionId', session.id, { expires: session.expiresAt });
+    response.cookie('sessionId', session.id, {
+      expires: session.expiresAt,
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+    });
     return response.status(200).send({
       message: 'User created successfully',
     });
@@ -72,10 +77,18 @@ export class UserController {
       );
 
       if (oldSession) {
-        await this.sessionService.extendSessionTimeBy(oldSession.id);
+        return response.status(200).send({
+          message: 'User logged in successfully',
+        });
       }
 
       const newSession = await this.sessionService.createSession(user.id);
+      response.cookie('sessionId', newSession.id, {
+        expires: newSession.expiresAt,
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+      });
 
       if (newSession) {
         return response.status(200).send({

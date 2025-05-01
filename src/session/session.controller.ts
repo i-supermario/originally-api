@@ -12,10 +12,11 @@ export class SessionController {
 
   @Get('/user-info')
   async getUserSessionInfo(@Req() request: Request, @Res() response: Response) {
-    const sessionId: string = request.cookies.sessionId;
+    const sessionId: any = request.cookies['sessionId'];
+    console.log(request.cookies);
 
     if (!sessionId) {
-      return response.status(401).send({
+      return response.status(200).send({
         message: 'Session id not found',
       });
     }
@@ -37,5 +38,9 @@ export class SessionController {
         sessionId: sessionId,
       });
     }
+
+    return response.status(401).send({
+      message: 'session info not found',
+    });
   }
 }
