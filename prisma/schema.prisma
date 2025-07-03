@@ -36,4 +36,12 @@ model Session {
   expiresAt DateTime
 }
 
+model Group {
+  id        String        @id @default(uuid())
+  name      String
+  description        String        
+  ownerId   String 
+  members   String[]      
+}
+
 

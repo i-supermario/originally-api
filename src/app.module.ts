@@ -9,6 +9,7 @@ import { FirebaseAuthModule } from './lib/firebase-auth/firebase-auth.module';
 import { FirebaseModule } from './lib/firebase/firebase.module';
 import { SessionService } from './session/session.service';
 import { SessionModule } from './session/session.module';
+import { GroupModule } from './group/group.module';
 import firebaseConfig from './config/firebase/config';
 
 @Module({
@@ -19,6 +20,7 @@ import firebaseConfig from './config/firebase/config';
     FirebaseAuthModule,
     FirebaseModule,
     SessionModule,
+    GroupModule,
   ],
   controllers: [AppController],
   providers: [AppService, SessionService],
