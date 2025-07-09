@@ -2,6 +2,8 @@ import { Controller, Get, Req, Res, } from '@nestjs/common';
 import { SessionService } from './session.service';
 import { Request, Response } from 'express';
 import { UserService } from 'src/user/user.service';
+import mongoose from 'mongoose';
+
 
 @Controller('/session')
 export class SessionController {
@@ -12,7 +14,7 @@ export class SessionController {
 
   @Get('/user-info')
   async getUserSessionInfo(@Req() request: Request, @Res() response: Response) {
-    const sessionId: any = request.cookies['sessionId'];
+    const sessionId: mongoose.Types.ObjectId = request.cookies['sessionId'];
     console.log(request.cookies);
 
     if (!sessionId) {
@@ -21,8 +23,7 @@ export class SessionController {
       });
     }
 
-    const sessionInfo =
-      await this.sessionService.findActiveSessionBySessionId(sessionId);
+    const sessionInfo = await this.sessionService.findActiveSessionBySessionId(sessionId);
 
     if (!sessionInfo) {
       return response.status(401).send({

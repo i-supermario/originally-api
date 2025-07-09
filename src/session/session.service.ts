@@ -1,64 +1,68 @@
 import { Injectable } from '@nestjs/common';
-import { Session, SessionStatus } from '@prisma/client';
-import { PrismaService } from 'src/prisma/prisma.service';
+import {
+  Session,
+  SessionDocument,
+  SessionStatus,
+} from 'src/database/models/session.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import mongoose, { Model } from 'mongoose';
 
 @Injectable()
 export class SessionService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    @InjectModel(Session.name) private sessionModel: Model<SessionDocument>,
+  ) {}
 
-  async createSession(userId: string): Promise<Session> {
-    return this.prismaService.session.create({
-      data: {
-        userId: userId,
-        createdAt: new Date(),
-        expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-        status: SessionStatus.ACTIVE,
-      },
+  async createSession(
+    userId: mongoose.Types.ObjectId,
+  ): Promise<SessionDocument> {
+    return this.sessionModel.create({
+      userId: userId,
     });
   }
 
   async findActiveSessionBySessionId(
-    sessionId: string,
-  ): Promise<Session | null> {
-    return this.prismaService.session.findFirst({
-      where: {
-        id: sessionId,
-      },
+    sessionId: mongoose.Types.ObjectId,
+  ): Promise<SessionDocument | null> {
+    return this.sessionModel.findOne({
+      _id: sessionId,
+      status: SessionStatus.ACTIVE,
     });
   }
 
-  async findActiveSessionByUserId(userId: string): Promise<Session | null> {
-    return this.prismaService.session.findFirst({
-      where: {
-        userId: userId,
-        status: SessionStatus.ACTIVE,
-      },
+  async findActiveSessionByUserId(
+    userId: mongoose.Types.ObjectId,
+  ): Promise<SessionDocument | null> {
+    return this.sessionModel.findOne({
+      userId: userId,
+      status: SessionStatus.ACTIVE,
     });
   }
 
   async extendSessionTimeBy(
-    sessionId: string,
+    sessionId: mongoose.Types.ObjectId,
     duration: number = 24 * 60 * 60 * 1000,
-  ): Promise<Session> {
-    return this.prismaService.session.update({
-      where: {
-        id: sessionId,
-        status: SessionStatus.ACTIVE,
+  ): Promise<SessionDocument | null> {
+    return this.sessionModel.findOneAndUpdate(
+      {
+        _id: sessionId,
       },
-      data: {
-        expiresAt: new Date(Date.now() + duration),
+      {
+        expiresAt: Date.now() + duration,
       },
-    });
+    );
   }
 
-  async closeActiveSession(sessionId: string) {
-    return this.prismaService.session.update({
-      where: {
-        id: sessionId,
+  async closeActiveSession(
+    sessionId: mongoose.Types.ObjectId,
+  ): Promise<SessionDocument | null> {
+    return this.sessionModel.findOneAndUpdate(
+      {
+        _id: sessionId,
       },
-      data: {
+      {
         status: SessionStatus.INACTIVE,
       },
-    });
+    );
   }
 }

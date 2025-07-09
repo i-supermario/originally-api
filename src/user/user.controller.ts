@@ -29,13 +29,13 @@ export class UserController {
     const { password, token, ...user } = userData;
 
     const res = await this.userService.createUser(user);
-    if (!res.id) {
+    if (!res) {
       return response.status(401).send({
         message: 'User could not be created',
       });
     }
 
-    const session = await this.sessionService.createSession(res.id);
+    const session = await this.sessionService.createSession(res._id);
 
     response.cookie('sessionId', session.id, {
       expires: session.expiresAt,
@@ -45,7 +45,7 @@ export class UserController {
     });
     return response.status(200).send({
       message: 'User created successfully',
-      sessionId: session.id,
+      sessionId: session._id.toString(),
       email: user.email,
     });
   }
@@ -60,58 +60,56 @@ export class UserController {
     const user = await this.userService.findUserByEmail(body.email);
 
     // Create session
-    if (user) {
-      // Verify token
-      // const decoded = await this.firebaseAuthService.verifyToken(body.token);
-      // console.log(decoded);
-      // if (!decoded.isVerified) {
-      //   return response
-      //     .status(401)
-      //     .send({ message: 'Token could not be verified' });
-      // }
-
-      // Check if user already logged
-      const oldSession = await this.sessionService.findActiveSessionByUserId(
-        user.id,
-      );
-
-      if (oldSession) {
-        response.cookie('sessionId', oldSession.id, {
-          expires: oldSession.expiresAt,
-          httpOnly: true,
-          secure: false,
-          sameSite: 'lax',
-        });
-        return response.status(200).send({
-          message: 'User logged in successfully',
-          sessionId: oldSession.id,
-          email: user.email,
-        });
-      }
-
-      const newSession = await this.sessionService.createSession(user.id);
-
-      if (newSession) {
-        response.cookie('sessionId', newSession.id, {
-          expires: newSession.expiresAt,
-          httpOnly: true,
-          secure: false,
-          sameSite: 'lax',
-        });
-        return response.status(200).send({
-          message: 'User logged in successfully',
-          sessionId: newSession.id,
-          email: user.email,
-        });
-      } else {
-        return response
-          .status(401)
-          .send({ message: 'Session could not be created' });
-      }
-    } else {
+    if (!user) {
       return response.status(401).send({ message: 'User not found' });
     }
-    return;
+    // Verify token
+    // const decoded = await this.firebaseAuthService.verifyToken(body.token);
+    // console.log(decoded);
+    // if (!decoded.isVerified) {
+    //   return response
+    //     .status(401)
+    //     .send({ message: 'Token could not be verified' });
+    // }
+
+    // Check if user already logged
+    const oldSession = await this.sessionService.findActiveSessionByUserId(
+      user._id,
+    );
+
+    if (oldSession) {
+      response.cookie('sessionId', oldSession.id, {
+        expires: oldSession.expiresAt,
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+      });
+      return response.status(200).send({
+        message: 'User logged in successfully',
+        sessionId: oldSession._id.toString(),
+        email: user.email,
+      });
+    }
+
+    const newSession = await this.sessionService.createSession(user._id);
+
+    if (newSession) {
+      response.cookie('sessionId', newSession.id, {
+        expires: newSession.expiresAt,
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+      });
+      return response.status(200).send({
+        message: 'User logged in successfully',
+        sessionId: newSession._id.toString(),
+        email: user.email,
+      });
+    } else {
+      return response
+        .status(401)
+        .send({ message: 'Session could not be created' });
+    }
   }
 
   @Post('/logout')
@@ -128,7 +126,7 @@ export class UserController {
       });
     }
     const session = await this.sessionService.findActiveSessionByUserId(
-      user?.id,
+      user._id,
     );
 
     if (!session) {
@@ -142,7 +140,7 @@ export class UserController {
       secure: false,
       sameSite: 'lax',
     });
-    await this.sessionService.closeActiveSession(session.id);
+    await this.sessionService.closeActiveSession(session._id);
     return response.status(200).send({
       message: 'User logged out successfully',
     });
