@@ -19,7 +19,7 @@ export class Group {
   @Prop({ required: true })
   description: string;
 
-  @Prop({ required: true })
+  @Prop({ default: [] })
   memberIds: mongoose.Types.ObjectId[];
 }
 
