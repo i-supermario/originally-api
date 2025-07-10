@@ -18,6 +18,8 @@ export class SessionService {
   ): Promise<SessionDocument> {
     return this.sessionModel.create({
       userId: userId,
+      expiresAt: Date.now() + 24 * 60 * 60 * 1000,
+      status: SessionStatus.ACTIVE,
     });
   }
 

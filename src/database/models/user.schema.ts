@@ -10,19 +10,19 @@ export type UserDocument = HydratedDocument<User>;
   toObject: { virtuals: true },
 })
 export class User {
-  @Prop()
+  @Prop({ required: true, unique: true })
   email: string;
 
-  @Prop()
+  @Prop({ required: true })
   firstName: string;
 
-  @Prop()
+  @Prop({ required: true })
   lastName: string;
 
-  @Prop()
+  @Prop({ required: true })
   dob: Date;
 
-  @Prop()
+  @Prop({ required: true, unique: true })
   phoneNo: string;
 }
 

@@ -10,13 +10,13 @@ export type SessionDocument = HydratedDocument<Session>;
   toObject: { virtuals: true },
 })
 export class Session {
-  @Prop()
+  @Prop({ required: true })
   userId: mongoose.Types.ObjectId;
 
-  @Prop()
+  @Prop({ required: true })
   status: SessionStatus;
 
-  @Prop()
+  @Prop({ required: true })
   expiresAt: Date;
 }
 

@@ -15,7 +15,6 @@ export class SessionController {
   @Get('/user-info')
   async getUserSessionInfo(@Req() request: Request, @Res() response: Response) {
     const sessionId: mongoose.Types.ObjectId = request.cookies['sessionId'];
-    console.log(request.cookies);
 
     if (!sessionId) {
       return response.status(200).send({
@@ -23,7 +22,8 @@ export class SessionController {
       });
     }
 
-    const sessionInfo = await this.sessionService.findActiveSessionBySessionId(sessionId);
+    const sessionInfo =
+      await this.sessionService.findActiveSessionBySessionId(sessionId);
 
     if (!sessionInfo) {
       return response.status(401).send({
