@@ -1,8 +1,9 @@
 import { IsString } from 'class-validator';
+import mongoose from 'mongoose';
 
 export class createGroupDto {
   @IsString()
-  ownerId: string;
+  ownerId: mongoose.Types.ObjectId;
 
   @IsString()
   name: string;
@@ -10,5 +11,5 @@ export class createGroupDto {
   @IsString()
   description: string;
 
-  members: string[];
+  members: mongoose.Types.ObjectId[];
 }
