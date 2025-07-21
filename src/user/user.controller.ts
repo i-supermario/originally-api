@@ -47,13 +47,17 @@ export class UserController {
       message: 'User created successfully',
       sessionId: session._id.toString(),
       email: user.email,
+      userId: res._id,
     });
   }
 
   @Post('/login')
   async loginUser(
     @Req() request: Request,
-    @Res({ passthrough: true }) response: Response,
+    @Res({
+      passthrough: true,
+    })
+    response: Response,
     @Body() body: LoginUserDto,
   ) {
     // Check if user exists
@@ -77,17 +81,20 @@ export class UserController {
       user._id,
     );
 
-    if (oldSession) {
+    if (oldSession && oldSession.expiresAt.getDate() > Date.now()) {
+
       response.cookie('sessionId', oldSession.id, {
         expires: oldSession.expiresAt,
         httpOnly: true,
         secure: false,
         sameSite: 'lax',
       });
+
       return response.status(200).send({
         message: 'User logged in successfully',
         sessionId: oldSession._id.toString(),
         email: user.email,
+        userId: user._id.toString(),
       });
     }
 
@@ -104,10 +111,11 @@ export class UserController {
         message: 'User logged in successfully',
         sessionId: newSession._id.toString(),
         email: user.email,
+        userId: user._id.toString(),
       });
     } else {
       return response
-        .status(401)
+        .status(400)
         .send({ message: 'Session could not be created' });
     }
   }

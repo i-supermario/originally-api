@@ -17,7 +17,7 @@ export class SessionController {
     const sessionId: mongoose.Types.ObjectId = request.cookies['sessionId'];
 
     if (!sessionId) {
-      return response.status(200).send({
+      return response.status(401).send({
         message: 'Session id not found',
       });
     }
@@ -35,6 +35,7 @@ export class SessionController {
 
     if (userInfo) {
       return response.status(200).send({
+        userId: sessionInfo.userId,
         email: userInfo?.email,
         sessionId: sessionId,
       });

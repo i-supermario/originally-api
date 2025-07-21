@@ -10,7 +10,10 @@ export class GroupService {
   ) {}
 
   async createGroup(data: Partial<Group>): Promise<GroupDocument> {
-    return this.groupModel.create({ ...data });
+    return this.groupModel.create({
+      ...data,
+      memberIds: [...(data.memberIds || []), data.ownerId],
+    });
   }
 
   async updateGroup(

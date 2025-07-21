@@ -1,10 +1,19 @@
-import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { GroupService } from './group.service';
 import { UserService } from 'src/user/user.service';
 import { createGroupDto } from './dto/createGroup.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { Request, Response } from 'express';
-import { addMemberDto } from './dto/addMember.dto';
+import mongoose from 'mongoose';
+import { addOrRemoveMemberDto } from './dto/addOrRemoveMember.dto';
 
 @Controller('group')
 @UseGuards(AuthGuard)
@@ -34,16 +43,17 @@ export class GroupController {
   async addMemberToGroup(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
-    @Body() data: addMemberDto,
+    @Param('groupId') groupId: mongoose.Types.ObjectId,
+    @Body() data: addOrRemoveMemberDto,
   ) {
     try {
-      const group = await this.groupService.findSingleGroupById(data.groupId);
+      const group = await this.groupService.findSingleGroupById(groupId);
       if (!group) response.status(400).send({ message: 'Group not found' });
 
       if (group?.memberIds.includes(data.memberId))
         response.status(200).send({ message: 'Member already in group' });
 
-      await this.groupService.addMemberToGroup(data.groupId, data.memberId);
+      await this.groupService.addMemberToGroup(groupId, data.memberId);
 
       response.status(200).send({ message: 'Member added to group' });
     } catch (error) {
@@ -60,19 +70,17 @@ export class GroupController {
   async removeMemberFromGroup(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
-    @Body() data: addMemberDto,
+    @Param('groupId') groupId: mongoose.Types.ObjectId,
+    @Body() data: addOrRemoveMemberDto,
   ) {
     try {
-      const group = await this.groupService.findSingleGroupById(data.groupId);
+      const group = await this.groupService.findSingleGroupById(groupId);
       if (!group) response.status(400).send({ message: 'Group not found' });
 
       if (group?.memberIds.includes(data.memberId))
         response.status(200).send({ message: 'Member already in group' });
 
-      await this.groupService.removeMemberFromGroup(
-        data.groupId,
-        data.memberId,
-      );
+      await this.groupService.removeMemberFromGroup(groupId, data.memberId);
 
       response.status(200).send({ message: 'Member added to group' });
     } catch (error) {
