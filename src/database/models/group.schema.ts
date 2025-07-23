@@ -3,6 +3,11 @@ import mongoose, { HydratedDocument } from 'mongoose';
 
 export type GroupDocument = HydratedDocument<Group>;
 
+export enum GroupStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+}
+
 @Schema({
   _id: true,
   timestamps: true,
@@ -21,6 +26,9 @@ export class Group {
 
   @Prop({ default: [] })
   memberIds: mongoose.Types.ObjectId[];
+
+  @Prop({ required: true })
+  status: GroupStatus;
 }
 
 export const groupSchema = SchemaFactory.createForClass(Group);

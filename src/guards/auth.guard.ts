@@ -16,6 +16,7 @@ export class AuthGuard implements CanActivate {
     // Are we sending userId or sessionId to validate the auth?
 
     const sessionId = request.cookies?.sessionId || '';
+    // console.log('SessionId', sessionId);
 
     if (!sessionId) {
       throw new UnauthorizedException(
@@ -23,7 +24,8 @@ export class AuthGuard implements CanActivate {
       );
     }
 
-    const session = await this.sessionService.findActiveSessionBySessionId(sessionId);
+    const session =
+      await this.sessionService.findActiveSessionBySessionId(sessionId);
     if (!session || session.expiresAt < new Date()) {
       throw new UnauthorizedException('Session invalid or expired');
     }

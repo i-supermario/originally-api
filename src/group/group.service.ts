@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectModel, IsObjectIdPipe } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
-import { Group, GroupDocument } from 'src/database/models/group.schema';
+import {
+  Group,
+  GroupDocument,
+  GroupStatus,
+} from 'src/database/models/group.schema';
 
 @Injectable()
 export class GroupService {
@@ -12,7 +16,9 @@ export class GroupService {
   async createGroup(data: Partial<Group>): Promise<GroupDocument> {
     return this.groupModel.create({
       ...data,
-      memberIds: [...(data.memberIds || []), data.ownerId],
+      ownerId: new mongoose.Types.ObjectId(data.ownerId),
+      status: GroupStatus.ACTIVE,
+      memberIds: [...(data.memberIds || [])],
     });
   }
 
@@ -47,17 +53,31 @@ export class GroupService {
   async findSingleGroupByOwnerId(
     ownerId: mongoose.Types.ObjectId,
   ): Promise<GroupDocument | null> {
-    return this.groupModel.findOne({
-      ownerId: ownerId,
-    });
+    return this.groupModel
+      .findOne({
+        ownerId: ownerId,
+      })
+      .lean();
   }
 
   async findGroupsByOwnerId(
     ownerId: mongoose.Types.ObjectId,
   ): Promise<Group[]> {
-    return this.groupModel.find({
-      ownerId: ownerId,
-    });
+    return this.groupModel
+      .find({
+        ownerId: new mongoose.Types.ObjectId(ownerId),
+      })
+      .lean();
+  }
+
+  async findGroupsByMemberId(
+    memberId: mongoose.Types.ObjectId,
+  ): Promise<Group[]> {
+    return this.groupModel
+      .find({
+        memberIds: { $in: new mongoose.Types.ObjectId(memberId) },
+      })
+      .lean();
   }
 
   async addMemberToGroup(
@@ -74,7 +94,7 @@ export class GroupService {
     memberId: mongoose.Types.ObjectId,
   ): Promise<GroupDocument | null> {
     return this.groupModel.findByIdAndUpdate(groupId, {
-      $pull: { memberIds: memberId },
+      $pull: { memberIds: new mongoose.Types.ObjectId(memberId) },
     });
   }
 }

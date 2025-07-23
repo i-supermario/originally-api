@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  Delete,
+  Get,
   Param,
   Post,
   Req,
@@ -14,8 +16,9 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { addOrRemoveMemberDto } from './dto/addOrRemoveMember.dto';
+import { GroupWithMembers } from 'src/common/types/group';
 
-@Controller('group')
+@Controller('/group')
 @UseGuards(AuthGuard)
 export class GroupController {
   constructor(
@@ -31,12 +34,13 @@ export class GroupController {
   ) {
     try {
       await this.groupService.createGroup({ ...data });
+      response.status(200);
+      // doing this to address circular json issue
+      return { message: 'Group created successfully' };
     } catch (error) {
-      response
-        .status(400)
-        .send({ message: 'Could not create group', error: error });
+      response.status(400);
+      return { message: 'Could not create group' };
     }
-    response.status(200).send({ message: 'Group created successfully' });
   }
 
   @Post('/:groupId/add-member')
@@ -48,48 +52,109 @@ export class GroupController {
   ) {
     try {
       const group = await this.groupService.findSingleGroupById(groupId);
-      if (!group) response.status(400).send({ message: 'Group not found' });
+      if (!group) {
+        response.status(400);
+        return { message: 'Group not found' };
+      }
 
-      if (group?.memberIds.includes(data.memberId))
+      const member = await this.userService.findUserByEmail(data.email);
+      if (!member) {
+        response.status(400);
+        return { message: `Member with email ${data.email} not found` };
+      }
+
+      if (group?.memberIds.includes(member._id))
         response.status(200).send({ message: 'Member already in group' });
 
-      await this.groupService.addMemberToGroup(groupId, data.memberId);
+      await this.groupService.addMemberToGroup(groupId, member._id);
 
-      response.status(200).send({ message: 'Member added to group' });
+      response.status(200);
+      return { message: 'Member added to group' };
     } catch (error) {
-      response
-        .status(400)
-        .send({ message: 'Could not add member to group', error: error });
+      response.status(400);
+      return { message: 'Could not add member to group', error: error };
     }
-    response
-      .status(200)
-      .send({ message: 'Member added to group successfully' });
   }
 
-  @Post('/:groupId/remove-member')
+  @Delete('/:groupId/remove-member/:memberId')
   async removeMemberFromGroup(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
     @Param('groupId') groupId: mongoose.Types.ObjectId,
-    @Body() data: addOrRemoveMemberDto,
+    @Param('memberId') memberId: mongoose.Types.ObjectId,
   ) {
     try {
       const group = await this.groupService.findSingleGroupById(groupId);
-      if (!group) response.status(400).send({ message: 'Group not found' });
+      if (!group) {
+        response.status(400);
+        return { message: 'Group not found' };
+      }
 
-      if (group?.memberIds.includes(data.memberId))
-        response.status(200).send({ message: 'Member already in group' });
+      // const member = await this.userService.findUserByEmail(data.email);
+      // if (!member) {
+      //   response.status(400);
+      //   return { message: `Member with email ${data.email} not found` };
+      // }
 
-      await this.groupService.removeMemberFromGroup(groupId, data.memberId);
+      if (!group?.memberIds.includes(memberId)) {
+        response.status(200);
+        return { message: 'Member removed from group' };
+      }
 
-      response.status(200).send({ message: 'Member added to group' });
+      await this.groupService.removeMemberFromGroup(groupId, memberId);
+
+      response.status(200);
+      return { message: 'Member removed from group' };
     } catch (error) {
-      response
-        .status(400)
-        .send({ message: 'Could not add member to group', error: error });
+      response.status(400);
+      return { message: 'Could not remove from group', error: error };
     }
-    response
-      .status(200)
-      .send({ message: 'Member added to group successfully' });
+  }
+
+  @Get('/get-all/:userId')
+  async getAllGroupsForUser(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+    @Param('userId') userId: mongoose.Types.ObjectId,
+  ) {
+    try {
+      const ownedGroups =
+        (await this.groupService.findGroupsByOwnerId(userId)) || [];
+
+      const memberGroups =
+        (await this.groupService.findGroupsByMemberId(userId)) || [];
+
+      const allGroups = [...ownedGroups, ...memberGroups];
+
+      const completeGroupDetails: GroupWithMembers[] = [];
+
+      for (const group of allGroups) {
+        // const others = group.memberIds.filter((id) => id != userId);
+        group.memberIds.push(group.ownerId);
+        const memberDetails = (
+          await Promise.all(
+            group.memberIds.map((id) => this.userService.findUserById(id)),
+          )
+        ).filter((user): user is NonNullable<typeof user> => !!user);
+
+        const ownerDetails = await this.userService.findUserById(group.ownerId);
+
+        if (!ownerDetails) continue;
+
+        completeGroupDetails.push({
+          ...group,
+          ownerDetails,
+          memberDetails,
+        });
+      }
+
+      // console.log(completeGroupDetails);
+
+      response.status(200);
+      return { data: completeGroupDetails };
+    } catch (error) {
+      response.status(400);
+      return { data: [] };
+    }
   }
 }

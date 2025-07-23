@@ -8,7 +8,7 @@ import { LoggerMiddleware } from './middleware/logger.middleware';
 import { FirebaseAuthModule } from './lib/firebase-auth/firebase-auth.module';
 import { FirebaseModule } from './lib/firebase/firebase.module';
 import { SessionModule } from './session/session.module';
-// import { GroupModule } from './group/group.module';
+import { GroupModule } from './group/group.module';
 import firebaseConfig, { DATABASE_URL } from './config/firebase/config';
 
 @Module({
@@ -18,7 +18,7 @@ import firebaseConfig, { DATABASE_URL } from './config/firebase/config';
     FirebaseAuthModule,
     FirebaseModule,
     SessionModule,
-    // GroupModule,
+    GroupModule,
     MongooseModule.forRoot(DATABASE_URL),
   ],
   controllers: [AppController],
@@ -26,6 +26,9 @@ import firebaseConfig, { DATABASE_URL } from './config/firebase/config';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('user').apply();
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes('user', 'group', 'session')
+      .apply();
   }
 }

@@ -28,7 +28,7 @@ export class UserService {
   async findUserById(
     id: mongoose.Types.ObjectId,
   ): Promise<UserDocument | null> {
-    return this.userModel.findById(id);
+    return this.userModel.findById(id).lean();
   }
 
   async findUserByEmail(email: string): Promise<UserDocument | null> {
