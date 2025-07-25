@@ -47,7 +47,7 @@ export class GroupService {
   ): Promise<GroupDocument | null> {
     return this.groupModel.findOne({
       _id: id,
-    });
+    }).lean();
   }
 
   async findSingleGroupByOwnerId(

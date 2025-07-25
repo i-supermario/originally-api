@@ -43,6 +43,38 @@ export class GroupController {
     }
   }
 
+  @Get('/:groupId')
+  async getGroupDetails(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+    @Param('groupId') groupId: mongoose.Types.ObjectId,
+  ) {
+    const group = await this.groupService.findSingleGroupById(groupId);
+    if (!group) {
+      response.status(400);
+      return { message: 'Group not found' };
+    }
+
+    // Fetch locations from redis
+
+    group.memberIds.push(group.ownerId);
+    const memberDetails = (
+      await Promise.all(
+        group.memberIds.map((id) => this.userService.findUserById(id)),
+      )
+    ).filter((user): user is NonNullable<typeof user> => !!user);
+
+    const ownerDetails = await this.userService.findUserById(group.ownerId);
+
+    response.status(200);
+
+    return {
+      ...group,
+      ownerDetails,
+      memberDetails,
+    };
+  }
+
   @Post('/:groupId/add-member')
   async addMemberToGroup(
     @Req() request: Request,
