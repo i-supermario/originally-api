@@ -53,4 +53,4 @@ export class Assignment {
   tasks: Task[];
 }
 
-export const groupSchema = SchemaFactory.createForClass(Assignment);
+export const assignmentSchema = SchemaFactory.createForClass(Assignment);

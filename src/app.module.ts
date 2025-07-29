@@ -13,8 +13,7 @@ import firebaseConfig, { DATABASE_URL } from './config/firebase/config';
 import { RedisService } from './redis/redis.service';
 import { RedisModule } from './redis/redis.module';
 import { LocationModule } from './location/location.module';
-import { TaskModule } from './assignment/assignment.module';
-import { TaskService } from './task/task.service';
+import { AssignmentModule } from './assignment/assignment.module';
 
 @Module({
   imports: [
@@ -27,10 +26,10 @@ import { TaskService } from './task/task.service';
     MongooseModule.forRoot(DATABASE_URL),
     RedisModule,
     LocationModule,
-    TaskModule,
+    AssignmentModule,
   ],
   controllers: [AppController],
-  providers: [AppService, RedisService, TaskService],
+  providers: [AppService, RedisService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

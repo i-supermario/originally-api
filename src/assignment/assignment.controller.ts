@@ -14,7 +14,7 @@ import mongoose from 'mongoose';
 import { Request, Response } from 'express';
 
 @Controller('assignments')
-class AssignmentController {
+export class AssignmentController {
   constructor(private readonly assignmentService: AssignmentService) {}
 
   // Create new assignment
