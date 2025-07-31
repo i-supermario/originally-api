@@ -51,6 +51,9 @@ export class Assignment {
 
   @Prop({ default: [] })
   tasks: Task[];
+
+  @Prop({ required: true })
+  dueDate: Date;
 }
 
 export const assignmentSchema = SchemaFactory.createForClass(Assignment);
