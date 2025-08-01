@@ -18,6 +18,7 @@ export class AssignmentService {
   async createAssignment(data: Partial<Assignment>): Promise<Assignment> {
     const assignment = await this.assignmentModel.create({
       ...data,
+      tasks: data.tasks || [],
     });
     return assignment;
   }
@@ -104,6 +105,15 @@ export class AssignmentService {
     );
   }
 
+  async assignTaskTo(
+    assignmentId: mongoose.Types.ObjectId,
+    assigneeId: mongoose.Types.ObjectId,
+  ) {
+    return this.assignmentModel.findByIdAndUpdate(assignmentId, {
+      assigneeId: assigneeId,
+    });
+  }
+
   async endTaskInAssignment(
     assignmentId: mongoose.Types.ObjectId,
     taskId: mongoose.Types.ObjectId,
@@ -121,7 +131,9 @@ export class AssignmentService {
                 as: 'task',
                 in: {
                   $cond: [
-                    { $eq: ['$$task._id', taskId] },
+                    {
+                      $eq: ['$$task._id', new mongoose.Types.ObjectId(taskId)],
+                    },
                     {
                       $mergeObjects: [
                         '$$task',

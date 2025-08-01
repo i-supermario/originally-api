@@ -33,6 +33,8 @@ export class Task {
   longitude: number;
 }
 
+const taskSchema = SchemaFactory.createForClass(Task);
+
 @Schema({
   _id: true,
   timestamps: true,
@@ -43,13 +45,16 @@ export class Assignment {
   @Prop({ required: true })
   ownerId: mongoose.Types.ObjectId;
 
+  @Prop({ default: '' })
+  assigneeId: mongoose.Types.ObjectId;
+
   @Prop({ required: true })
   name: string;
 
   @Prop({ required: true })
   description: string;
 
-  @Prop({ default: [] })
+  @Prop({ type: [taskSchema], default: [] })
   tasks: Task[];
 
   @Prop({ required: true })
