@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, mongo } from 'mongoose';
+import { AssignmentDetails } from 'src/common/types/assignment';
 import {
   Assignment,
   AssignmentDocument,
   Task,
   TaskStatus,
 } from 'src/database/models/assignment.schema';
+import { User } from 'src/database/models/user.schema';
 
 @Injectable()
 export class AssignmentService {
@@ -18,6 +20,7 @@ export class AssignmentService {
   async createAssignment(data: Partial<Assignment>): Promise<Assignment> {
     const assignment = await this.assignmentModel.create({
       ...data,
+      ownerId: new mongoose.Types.ObjectId(data.ownerId),
       tasks: data.tasks || [],
     });
     return assignment;
@@ -38,9 +41,62 @@ export class AssignmentService {
   ): Promise<Assignment[]> {
     return (
       (await this.assignmentModel.find({
-        ownerId: ownerId,
+        ownerId: new mongoose.Types.ObjectId(ownerId),
       })) || []
     );
+  }
+
+  async findAssignmentByAssigneeId(
+    assigneeId: mongoose.Types.ObjectId,
+  ): Promise<Assignment[]> {
+    return (
+      (await this.assignmentModel.find({
+        assigneeId: new mongoose.Types.ObjectId(assigneeId),
+      })) || []
+    );
+  }
+
+  async findAssignmentDetailsById(
+    id: mongoose.Types.ObjectId,
+  ): Promise<AssignmentDetails> {
+    const assignmentDetails =
+      await this.assignmentModel.aggregate<AssignmentDetails>([
+        {
+          $match: { _id: new mongoose.Types.ObjectId(id) },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'assigneeId',
+            foreignField: '_id',
+            as: 'assigneeDetails',
+          },
+        },
+        {
+          $unwind: {
+            path: '$assigneeDetails',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'ownerId',
+            foreignField: '_id',
+            as: 'ownerDetails',
+          },
+        },
+        {
+          $unwind: {
+            path: '$ownerDetails',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+      ]);
+
+    // console.log(assignmentDetails);
+
+    return assignmentDetails[0];
   }
 
   async addTaskToAssignment(

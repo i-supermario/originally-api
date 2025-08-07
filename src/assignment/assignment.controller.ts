@@ -9,6 +9,7 @@ import {
   Req,
   Res,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { AssignmentService } from './assignment.service';
 import mongoose from 'mongoose';
@@ -16,8 +17,16 @@ import { Request, Response } from 'express';
 import { createAssignmentDto } from './dto/createAssignment.dto';
 import { addTaskDto } from './dto/addTask.dto';
 import { UserService } from 'src/user/user.service';
+import { AuthGuard } from 'src/guards/auth.guard';
+import {
+  Assignment,
+  AssignmentDocument,
+} from 'src/database/models/assignment.schema';
+import { User } from 'src/database/models/user.schema';
+import { AssignmentDetails } from 'src/common/types/assignment';
 
 @Controller('/assignment')
+// @UseGuards(AuthGuard)
 export class AssignmentController {
   constructor(
     private readonly assignmentService: AssignmentService,
@@ -53,16 +62,24 @@ export class AssignmentController {
     @Res({ passthrough: true }) response: Response,
     @Param('assignmentId') assignmentId: mongoose.Types.ObjectId,
   ) {
-    const assignment =
-      await this.assignmentService.findAssignmentById(assignmentId);
+    try {
+      const assignment: AssignmentDetails =
+        await this.assignmentService.findAssignmentDetailsById(assignmentId);
 
-    if (!assignment) {
+      if (!assignment) {
+        response.status(200);
+        return { message: 'Assignment not found' };
+      }
+
+      response.status(200);
+      return {
+        data: assignment,
+      };
+    } catch (error) {
+      console.error(error);
       response.status(400);
-      return { message: 'Assignment not found' };
+      return { message: 'Failed to retrieve assignment' };
     }
-
-    response.status(200);
-    return { data: assignment };
   }
 
   @Get('/get-all/:userId')
@@ -72,11 +89,23 @@ export class AssignmentController {
     @Param('userId') userId: mongoose.Types.ObjectId,
   ) {
     try {
-      const assignments =
-        (await this.assignmentService.findAssignmentsByOwnerId(userId)) || [];
+      const ownedAssignments =
+        await this.assignmentService.findAssignmentsByOwnerId(userId);
+
+      const assignedAssignments =
+        await this.assignmentService.findAssignmentByAssigneeId(userId);
+
+      const assignments = [...ownedAssignments, ...assignedAssignments];
+
+      console.log(assignments);
+
+      const assignmentDetails = await Promise.all(
+        assignments.map((_: AssignmentDocument) =>
+          this.assignmentService.findAssignmentDetailsById(_._id),
+      ));
 
       response.status(200);
-      return { data: assignments };
+      return { data: assignmentDetails };
     } catch (error) {
       console.error(error);
       response.status(400);
