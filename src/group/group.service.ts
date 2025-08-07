@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel, IsObjectIdPipe } from '@nestjs/mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import {
   Group,
@@ -45,9 +45,11 @@ export class GroupService {
   async findSingleGroupById(
     id: mongoose.Types.ObjectId,
   ): Promise<GroupDocument | null> {
-    return this.groupModel.findOne({
-      _id: id,
-    }).lean();
+    return this.groupModel
+      .findOne({
+        _id: id,
+      })
+      .lean();
   }
 
   async findSingleGroupByOwnerId(
