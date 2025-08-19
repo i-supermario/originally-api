@@ -8,6 +8,8 @@ import { LoggerMiddleware } from './middleware/logger.middleware';
 import { SessionModule } from './session/session.module';
 import { GroupModule } from './group/group.module';
 import { AssignmentModule } from './assignment/assignment.module';
+import { PingService } from './ping/ping.service';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -16,6 +18,7 @@ import { AssignmentModule } from './assignment/assignment.module';
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV} || 'development'`,
     }),
+    ScheduleModule.forRoot(),
     UserModule,
     SessionModule,
     GroupModule,
@@ -25,7 +28,7 @@ import { AssignmentModule } from './assignment/assignment.module';
     AssignmentModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PingService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

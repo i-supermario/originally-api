@@ -17,6 +17,8 @@ const logger_middleware_1 = require("./middleware/logger.middleware");
 const session_module_1 = require("./session/session.module");
 const group_module_1 = require("./group/group.module");
 const assignment_module_1 = require("./assignment/assignment.module");
+const ping_service_1 = require("./ping/ping.service");
+const schedule_1 = require("@nestjs/schedule");
 let AppModule = class AppModule {
     configure(consumer) {
         consumer
@@ -34,6 +36,7 @@ exports.AppModule = AppModule = __decorate([
                 isGlobal: true,
                 envFilePath: `.env.${process.env.NODE_ENV} || 'development'`,
             }),
+            schedule_1.ScheduleModule.forRoot(),
             user_module_1.UserModule,
             session_module_1.SessionModule,
             group_module_1.GroupModule,
@@ -41,7 +44,7 @@ exports.AppModule = AppModule = __decorate([
             assignment_module_1.AssignmentModule,
         ],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService],
+        providers: [app_service_1.AppService, ping_service_1.PingService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map
