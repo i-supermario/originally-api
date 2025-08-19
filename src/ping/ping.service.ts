@@ -10,7 +10,7 @@ export class PingService {
       const url =
         process.env.NODE_ENV === 'development'
           ? 'http://localhost:3000/health'
-          : 'https://origin-ally-api.onrender.com/health';
+          : 'https://originally-api.onrender.com/health';
       const response = await fetch(url);
       if (response.ok) {
         console.log('Health check passed');
