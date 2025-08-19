@@ -19,9 +19,6 @@ const firebase_module_1 = require("./lib/firebase/firebase.module");
 const session_module_1 = require("./session/session.module");
 const group_module_1 = require("./group/group.module");
 const config_2 = require("./config/firebase/config");
-const redis_service_1 = require("./redis/redis.service");
-const redis_module_1 = require("./redis/redis.module");
-const location_module_1 = require("./location/location.module");
 const assignment_module_1 = require("./assignment/assignment.module");
 let AppModule = class AppModule {
     configure(consumer) {
@@ -42,12 +39,10 @@ exports.AppModule = AppModule = __decorate([
             session_module_1.SessionModule,
             group_module_1.GroupModule,
             mongoose_1.MongooseModule.forRoot(config_2.DATABASE_URL),
-            redis_module_1.RedisModule,
-            location_module_1.LocationModule,
             assignment_module_1.AssignmentModule,
         ],
         controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService, redis_service_1.RedisService],
+        providers: [app_service_1.AppService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

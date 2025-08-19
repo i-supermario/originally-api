@@ -10,9 +10,6 @@ import { FirebaseModule } from './lib/firebase/firebase.module';
 import { SessionModule } from './session/session.module';
 import { GroupModule } from './group/group.module';
 import firebaseConfig, { DATABASE_URL } from './config/firebase/config';
-import { RedisService } from './redis/redis.service';
-import { RedisModule } from './redis/redis.module';
-import { LocationModule } from './location/location.module';
 import { AssignmentModule } from './assignment/assignment.module';
 
 @Module({
@@ -24,18 +21,16 @@ import { AssignmentModule } from './assignment/assignment.module';
     SessionModule,
     GroupModule,
     MongooseModule.forRoot(DATABASE_URL),
-    RedisModule,
-    LocationModule,
     AssignmentModule,
   ],
   controllers: [AppController],
-  providers: [AppService, RedisService],
+  providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(LoggerMiddleware)
-      .forRoutes('user', 'group', 'session','assignment')
+      .forRoutes('user', 'group', 'session', 'assignment')
       .apply();
   }
 }
