@@ -4,6 +4,7 @@ const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
 const common_1 = require("@nestjs/common");
 const cookieParser = require("cookie-parser");
+const express_session_1 = require("express-session");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.enableCors({
@@ -16,7 +17,16 @@ async function bootstrap() {
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     });
     app.use(cookieParser());
-    app.use(sess);
+    app.use((0, express_session_1.default)({
+        secret: 'razgriz',
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none',
+        },
+    }));
     app.useGlobalPipes(new common_1.ValidationPipe({ transform: true }));
     await app.listen(process.env.PORT ?? 3000);
 }
