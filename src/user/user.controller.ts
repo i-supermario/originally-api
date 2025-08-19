@@ -2,7 +2,6 @@ import { Body, Controller, Post, Req, Res } from '@nestjs/common';
 import { UserService } from './user.service';
 import { SignUpUserDto } from './dto/SignUpUser.dto';
 import { Request, Response } from 'express';
-import { FirebaseAuthService } from 'src/lib/firebase-auth/firebase-auth.service';
 import { LoginUserDto } from './dto/LoginUser.dto';
 import { SessionService } from 'src/session/session.service';
 import { LogoutUserDto } from './dto/LogoutUser.dto';
@@ -11,8 +10,7 @@ export class UserController {
   constructor(
     private sessionService: SessionService,
     private userService: UserService,
-    private readonly firebaseAuthService: FirebaseAuthService,
-  ) { }
+  ) {}
 
   @Post('/sign-up')
   async signUpUser(
@@ -20,12 +18,6 @@ export class UserController {
     @Res({ passthrough: true }) response: Response,
     @Body() userData: SignUpUserDto,
   ) {
-    // const decoded = await this.firebaseAuthService.verifyToken(userData.token);
-    // console.log(decoded);
-    // if (!decoded.isVerified) {
-    //   response.send({ message: 'Token could not be verified' });
-    // }
-
     const { password, token, ...user } = userData;
 
     const res = await this.userService.createUser(user);
@@ -67,22 +59,11 @@ export class UserController {
     if (!user) {
       return response.status(401).send({ message: 'User not found' });
     }
-    // Verify token
-    // const decoded = await this.firebaseAuthService.verifyToken(body.token);
-    // console.log(decoded);
-    // if (!decoded.isVerified) {
-    //   return response
-    //     .status(401)
-    //     .send({ message: 'Token could not be verified' });
-    // }
-
-    // Check if user already logged
     const oldSession = await this.sessionService.findActiveSessionByUserId(
       user._id,
     );
 
     if (oldSession && oldSession.expiresAt.getDate() > Date.now()) {
-
       response.cookie('sessionId', oldSession.id, {
         expires: oldSession.expiresAt,
         httpOnly: true,

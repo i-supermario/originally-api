@@ -1,1 +1,0 @@
-{"version":3,"file":"actionCodeSettings.js","sourceRoot":"","sources":["../../../../src/config/firebase/auth/actionCodeSettings.ts"],"names":[],"mappings":";;AAEA,kBAAe,GAAkC,EAAE,CAAC,CAAC;IACnD,GAAG,EAAE,OAAO,CAAC,GAAG,CAAC,iBAAiB,IAAI,EAAE;IACxC,eAAe,EAAE,IAAI;CACtB,CAAC,CAAC"}

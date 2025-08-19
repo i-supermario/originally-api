@@ -10,7 +10,6 @@ exports.UserModule = void 0;
 const common_1 = require("@nestjs/common");
 const user_service_1 = require("./user.service");
 const user_controller_1 = require("./user.controller");
-const firebase_auth_module_1 = require("../lib/firebase-auth/firebase-auth.module");
 const session_module_1 = require("../session/session.module");
 const mongoose_1 = require("@nestjs/mongoose");
 const user_schema_1 = require("../database/models/user.schema");
@@ -21,7 +20,6 @@ exports.UserModule = UserModule = __decorate([
     (0, common_1.Module)({
         imports: [
             session_module_1.SessionModule,
-            firebase_auth_module_1.FirebaseAuthModule,
             mongoose_1.MongooseModule.forFeature([{ name: user_schema_1.User.name, schema: user_schema_1.UserSchema }]),
         ],
         exports: [user_service_1.UserService],

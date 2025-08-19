@@ -4,12 +4,14 @@ const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
 const common_1 = require("@nestjs/common");
 const cookieParser = require("cookie-parser");
-const express_session_1 = require("express-session");
+const session = require("express-session");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.enableCors({
         origin: [
-            'https://origin-ally.vercel.app',
+            process.env.NODE_ENV === 'development'
+                ? 'http://localhost:5173'
+                : 'https://origin-ally.vercel.app',
             'https://origin-ally.vercel.app/',
         ],
         credentials: true,
@@ -17,7 +19,7 @@ async function bootstrap() {
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     });
     app.use(cookieParser());
-    app.use((0, express_session_1.default)({
+    app.use(session({
         secret: 'razgriz',
         resave: false,
         saveUninitialized: false,

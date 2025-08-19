@@ -16,18 +16,15 @@ exports.UserController = void 0;
 const common_1 = require("@nestjs/common");
 const user_service_1 = require("./user.service");
 const SignUpUser_dto_1 = require("./dto/SignUpUser.dto");
-const firebase_auth_service_1 = require("../lib/firebase-auth/firebase-auth.service");
 const LoginUser_dto_1 = require("./dto/LoginUser.dto");
 const session_service_1 = require("../session/session.service");
 const LogoutUser_dto_1 = require("./dto/LogoutUser.dto");
 let UserController = class UserController {
     sessionService;
     userService;
-    firebaseAuthService;
-    constructor(sessionService, userService, firebaseAuthService) {
+    constructor(sessionService, userService) {
         this.sessionService = sessionService;
         this.userService = userService;
-        this.firebaseAuthService = firebaseAuthService;
     }
     async signUpUser(request, response, userData) {
         const { password, token, ...user } = userData;
@@ -42,7 +39,7 @@ let UserController = class UserController {
             expires: session.expiresAt,
             httpOnly: true,
             secure: true,
-            sameSite: 'lax',
+            sameSite: 'none',
         });
         return response.status(200).send({
             message: 'User created successfully',
@@ -62,7 +59,7 @@ let UserController = class UserController {
                 expires: oldSession.expiresAt,
                 httpOnly: true,
                 secure: true,
-                sameSite: 'lax',
+                sameSite: 'none',
             });
             return response.status(200).send({
                 message: 'User logged in successfully',
@@ -77,7 +74,7 @@ let UserController = class UserController {
                 expires: newSession.expiresAt,
                 httpOnly: true,
                 secure: true,
-                sameSite: 'lax',
+                sameSite: 'none',
             });
             return response.status(200).send({
                 message: 'User logged in successfully',
@@ -109,7 +106,7 @@ let UserController = class UserController {
             expires: new Date(),
             httpOnly: true,
             secure: true,
-            sameSite: 'lax',
+            sameSite: 'none',
         });
         await this.sessionService.closeActiveSession(session._id);
         return response.status(200).send({
@@ -150,7 +147,6 @@ __decorate([
 exports.UserController = UserController = __decorate([
     (0, common_1.Controller)('/user'),
     __metadata("design:paramtypes", [session_service_1.SessionService,
-        user_service_1.UserService,
-        firebase_auth_service_1.FirebaseAuthService])
+        user_service_1.UserService])
 ], UserController);
 //# sourceMappingURL=user.controller.js.map

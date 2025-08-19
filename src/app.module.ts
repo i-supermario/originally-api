@@ -5,22 +5,23 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserModule } from './user/user.module';
 import { LoggerMiddleware } from './middleware/logger.middleware';
-import { FirebaseAuthModule } from './lib/firebase-auth/firebase-auth.module';
-import { FirebaseModule } from './lib/firebase/firebase.module';
 import { SessionModule } from './session/session.module';
 import { GroupModule } from './group/group.module';
-import firebaseConfig, { DATABASE_URL } from './config/firebase/config';
 import { AssignmentModule } from './assignment/assignment.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ cache: true, load: [firebaseConfig] }),
+    ConfigModule.forRoot({
+      cache: true,
+      isGlobal: true,
+      envFilePath: `.env.${process.env.NODE_ENV} || 'development'`,
+    }),
     UserModule,
-    FirebaseAuthModule,
-    FirebaseModule,
     SessionModule,
     GroupModule,
-    MongooseModule.forRoot(DATABASE_URL),
+    MongooseModule.forRoot(
+      process.env.DATABASE_URL || 'mongodb://127.0.0.1:27017/no-cap',
+    ),
     AssignmentModule,
   ],
   controllers: [AppController],
