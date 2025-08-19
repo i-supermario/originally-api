@@ -6,7 +6,15 @@ const common_1 = require("@nestjs/common");
 const cookieParser = require("cookie-parser");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
-    app.enableCors({ origin: 'http://localhost:5173', credentials: true });
+    app.enableCors({
+        origin: [
+            'http://localhost:5173',
+            'https://originally-ui.vercel.app/',
+            'https://originally-ui-git-main-isupermarios-projects.vercel.app/',
+            'https://originally-1g1a521xb-isupermarios-projects.vercel.app/',
+        ],
+        credentials: true,
+    });
     app.use(cookieParser());
     app.useGlobalPipes(new common_1.ValidationPipe({ transform: true }));
     await app.listen(process.env.PORT ?? 3000);
