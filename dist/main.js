@@ -9,6 +9,8 @@ async function bootstrap() {
     app.enableCors({
         origin: ['http://localhost:5173', 'https://origin-ally.vercel.app'],
         credentials: true,
+        preflightContinue: false,
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     });
     app.use(cookieParser());
     app.useGlobalPipes(new common_1.ValidationPipe({ transform: true }));
