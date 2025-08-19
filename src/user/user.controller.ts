@@ -41,7 +41,7 @@ export class UserController {
       expires: session.expiresAt,
       httpOnly: true,
       secure: true,
-      sameSite: 'lax',
+      sameSite: 'none',
     });
     return response.status(200).send({
       message: 'User created successfully',
@@ -87,7 +87,7 @@ export class UserController {
         expires: oldSession.expiresAt,
         httpOnly: true,
         secure: true,
-        sameSite: 'lax',
+        sameSite: 'none',
       });
 
       return response.status(200).send({
@@ -105,7 +105,7 @@ export class UserController {
         expires: newSession.expiresAt,
         httpOnly: true,
         secure: true,
-        sameSite: 'lax',
+        sameSite: 'none',
       });
       return response.status(200).send({
         message: 'User logged in successfully',
@@ -146,7 +146,7 @@ export class UserController {
       expires: new Date(),
       httpOnly: true,
       secure: true,
-      sameSite: 'lax',
+      sameSite: 'none',
     });
     await this.sessionService.closeActiveSession(session._id);
     return response.status(200).send({
