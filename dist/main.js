@@ -16,6 +16,7 @@ async function bootstrap() {
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     });
     app.use(cookieParser());
+    app.use(sess);
     app.useGlobalPipes(new common_1.ValidationPipe({ transform: true }));
     await app.listen(process.env.PORT ?? 3000);
 }

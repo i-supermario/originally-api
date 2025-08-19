@@ -41,7 +41,7 @@ let UserController = class UserController {
         response.cookie('sessionId', session.id, {
             expires: session.expiresAt,
             httpOnly: true,
-            secure: false,
+            secure: true,
             sameSite: 'lax',
         });
         return response.status(200).send({
@@ -61,7 +61,7 @@ let UserController = class UserController {
             response.cookie('sessionId', oldSession.id, {
                 expires: oldSession.expiresAt,
                 httpOnly: true,
-                secure: false,
+                secure: true,
                 sameSite: 'lax',
             });
             return response.status(200).send({
@@ -76,7 +76,7 @@ let UserController = class UserController {
             response.cookie('sessionId', newSession.id, {
                 expires: newSession.expiresAt,
                 httpOnly: true,
-                secure: false,
+                secure: true,
                 sameSite: 'lax',
             });
             return response.status(200).send({
@@ -108,7 +108,7 @@ let UserController = class UserController {
         response.cookie('sessionId', '', {
             expires: new Date(),
             httpOnly: true,
-            secure: false,
+            secure: true,
             sameSite: 'lax',
         });
         await this.sessionService.closeActiveSession(session._id);
