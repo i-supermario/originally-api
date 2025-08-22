@@ -22,7 +22,7 @@ export class UserController {
 
     const res = await this.userService.createUser(user);
     if (!res) {
-      return response.status(401).send({
+      return response.status(500).send({
         message: 'User could not be created',
       });
     }
@@ -96,7 +96,7 @@ export class UserController {
       });
     } else {
       return response
-        .status(400)
+        .status(200)
         .send({ message: 'Session could not be created' });
     }
   }
@@ -110,7 +110,7 @@ export class UserController {
     // Check if user exists
     const user = await this.userService.findUserByEmail(body.email);
     if (!user) {
-      return response.status(400).send({
+      return response.status(404).send({
         message: 'User not found',
       });
     }
@@ -119,7 +119,7 @@ export class UserController {
     );
 
     if (!session) {
-      return response.status(400).send({
+      return response.status(404).send({
         message: 'session not found',
       });
     }

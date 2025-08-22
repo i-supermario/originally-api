@@ -38,7 +38,7 @@ export class GroupController {
       // doing this to address circular json issue
       return { message: 'Group created successfully' };
     } catch (error) {
-      response.status(400);
+      response.status(500);
       return { message: 'Could not create group' };
     }
   }
@@ -51,7 +51,7 @@ export class GroupController {
   ) {
     const group = await this.groupService.findSingleGroupById(groupId);
     if (!group) {
-      response.status(400);
+      response.status(404);
       return { message: 'Group not found' };
     }
 
@@ -85,13 +85,13 @@ export class GroupController {
     try {
       const group = await this.groupService.findSingleGroupById(groupId);
       if (!group) {
-        response.status(400);
+        response.status(404);
         return { message: 'Group not found' };
       }
 
       const member = await this.userService.findUserByEmail(data.email);
       if (!member) {
-        response.status(400);
+        response.status(404);
         return { message: `Member with email ${data.email} not found` };
       }
 
@@ -103,7 +103,7 @@ export class GroupController {
       response.status(200);
       return { message: 'Member added to group' };
     } catch (error) {
-      response.status(400);
+      response.status(500);
       return { message: 'Could not add member to group', error: error };
     }
   }
@@ -118,7 +118,7 @@ export class GroupController {
     try {
       const group = await this.groupService.findSingleGroupById(groupId);
       if (!group) {
-        response.status(400);
+        response.status(404);
         return { message: 'Group not found' };
       }
 
@@ -138,7 +138,7 @@ export class GroupController {
       response.status(200);
       return { message: 'Member removed from group' };
     } catch (error) {
-      response.status(400);
+      response.status(500);
       return { message: 'Could not remove from group', error: error };
     }
   }
@@ -185,7 +185,7 @@ export class GroupController {
       response.status(200);
       return { data: completeGroupDetails };
     } catch (error) {
-      response.status(400);
+      response.status(500);
       return { data: [] };
     }
   }

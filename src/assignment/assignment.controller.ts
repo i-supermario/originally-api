@@ -50,7 +50,7 @@ export class AssignmentController {
       return { message: 'Task created successfully' };
     } catch (error) {
       console.error(error);
-      response.status(400);
+      response.status(500);
       return { message: 'Failed to create task' };
     }
   }
@@ -67,7 +67,7 @@ export class AssignmentController {
         await this.assignmentService.findAssignmentDetailsById(assignmentId);
 
       if (!assignment) {
-        response.status(200);
+        response.status(404);
         return { message: 'Assignment not found' };
       }
 
@@ -77,7 +77,7 @@ export class AssignmentController {
       };
     } catch (error) {
       console.error(error);
-      response.status(400);
+      response.status(500);
       return { message: 'Failed to retrieve assignment' };
     }
   }
@@ -97,7 +97,7 @@ export class AssignmentController {
 
       const assignments = [...ownedAssignments, ...assignedAssignments];
 
-      console.log(assignments);
+      // console.log(assignments);
 
       const assignmentDetails = await Promise.all(
         assignments.map((_: AssignmentDocument) =>
@@ -108,7 +108,7 @@ export class AssignmentController {
       return { data: assignmentDetails };
     } catch (error) {
       console.error(error);
-      response.status(400);
+      response.status(500);
       return { data: [] };
     }
   }
@@ -126,7 +126,7 @@ export class AssignmentController {
       return { message: 'Assignment removed successfully' };
     } catch (error) {
       console.error(error);
-      response.status(400);
+      response.status(500);
       return { message: 'Failed to remove assignment' };
     }
   }
@@ -144,7 +144,7 @@ export class AssignmentController {
       response.status(200);
       return { message: 'Task added successfully' };
     } catch (error) {
-      response.status(400);
+      response.status(500);
       console.error(error);
       return { message: 'Failed to add task' };
     }
@@ -161,7 +161,7 @@ export class AssignmentController {
       const user = await this.userService.findUserByEmail(body.email);
 
       if (!user) {
-        response.status(200);
+        response.status(400);
         return { message: 'User with email does not exist' };
       }
 
@@ -170,7 +170,7 @@ export class AssignmentController {
       response.status(200);
       return { message: 'Task assigned to user successfully' };
     } catch (error) {
-      response.status(400);
+      response.status(500);
       console.error(error);
       return { message: 'Failed to assign task' };
     }
@@ -190,7 +190,7 @@ export class AssignmentController {
       return { message: 'Task marked as complete successfully' };
     } catch (error) {
       console.error(error);
-      response.status(400);
+      response.status(500);
       return { message: 'Failed to add task' };
     }
   }
